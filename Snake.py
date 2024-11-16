@@ -12,15 +12,25 @@ number_of_cells = 25
 
 class Food:
     def __init__(self):
-        self.position = vector2(5,6)
+        self.position = Vector2(10,10)
 
     def draw(self):
+        food_rect = pygame.Rect(self.position.x * cell_size, self.position.y * cell_size, cell_size, cell_size)
+        pygame.draw.rect(screen, DARK_GREEN, food_rect)
+        #screen.blit(food_surface,food_rect)
+    
+    def generate_random_pos(self):
         pass
+
 
 screen = pygame.display.set_mode((cell_size*number_of_cells,cell_size*number_of_cells))
 pygame.display.set_caption("Snake Game")
 
 clock = pygame.time.Clock()
+
+
+food = Food()
+#food_surface = pygame.image.load("Graphics/food.png")
 
 while True:
     for event in pygame.event.get():
@@ -29,7 +39,9 @@ while True:
             sys.exit()
     
     screen.fill(GREEN)
-    
+    food.draw()
+
+
     pygame.display.update()
     clock.tick(60)
 
