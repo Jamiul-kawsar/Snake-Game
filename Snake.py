@@ -96,7 +96,6 @@ class Game:
     def game_over(self):
         self.snake.reset()
         self.food.position = self.food.generate_random_pos(self.snake.body)
-        print("Score: ",self.score)
         #restart the game score
         self.score = 0
         self.state = "STOPPED"
