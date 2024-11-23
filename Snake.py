@@ -5,8 +5,10 @@ import random
 from pygame.math import Vector2
 
 pygame.init()
-GREEN = (173, 204, 96)
-DARK_GREEN = (43, 51, 24)
+GREEN = (0, 255, 0)
+BLACK = (0,0,0)
+RED = (255,0,0)
+GRAY = (128,128,128)
 cell_size = 16
 number_of_cells = 25
 
@@ -18,8 +20,8 @@ class Food:
         self.position = self.generate_random_pos(snake_body)
 
     def draw(self):
-        food_rect = pygame.Rect(self.position.x * cell_size, self.position.y * cell_size, cell_size, cell_size)
-        pygame.draw.rect(screen, (255, 0, 0), food_rect)
+        food_rect = pygame.Rect(OFFSET + self.position.x * cell_size, OFFSET + self.position.y * cell_size, cell_size, cell_size)
+        pygame.draw.rect(screen, RED, food_rect)
         #screen.blit(food_surface,food_rect)
     
     def generate_random_cell(self):
@@ -42,8 +44,8 @@ class Snake:
 
     def draw(self):
         for segment in self.body:
-            segment_rect = (segment.x * cell_size, segment.y * cell_size, cell_size, cell_size)
-            pygame.draw.rect(screen, DARK_GREEN, segment_rect, 0, 7)
+            segment_rect = (OFFSET+segment.x * cell_size, OFFSET+segment.y * cell_size, cell_size, cell_size)
+            pygame.draw.rect(screen, GREEN, segment_rect, 0, 7)
 
     def update(self):
         self.body.insert(0,self.body[0] + self.direction)
@@ -95,7 +97,7 @@ class Game:
         if self.snake.body[0] in headless_body:
             self.game_over()
 
-
+# screen
 screen = pygame.display.set_mode((2 * OFFSET + cell_size*number_of_cells,  2 * OFFSET + cell_size*number_of_cells))
 pygame.display.set_caption("Snake Game")
 
@@ -133,12 +135,14 @@ while True:
 
             if event.key == pygame.K_RIGHT and game.snake.direction != Vector2(-1, 0):
                 game.snake.direction = Vector2(1, 0)
-        
-    screen.fill(GREEN)
-    #pygame.draw.rect(screen, DARK_GREEN, rect, 5)
+
+    # screen fill with black color 
+    screen.fill(BLACK)
+    # draw bordar
+    pygame.draw.rect(screen, GRAY, (OFFSET-10, OFFSET-10,cell_size*number_of_cells+20,cell_size*number_of_cells+20), 10)
     game.draw()
 
     pygame.display.update()
-
+    
     clock.tick(60)
 
