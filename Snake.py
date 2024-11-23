@@ -5,6 +5,9 @@ import random
 from pygame.math import Vector2
 
 pygame.init()
+title_font = pygame.font.Font(None, 60)
+score_font = pygame.font.Font(None, 40)
+
 GREEN = (0, 255, 0)
 BLACK = (0,0,0)
 RED = (255,0,0)
@@ -63,6 +66,8 @@ class Game:
     def __init__(self):
         self.snake = Snake()
         self.food = Food(self.snake.body)
+        # game score
+        self.score = 0
         self.state = "RUNNING"
     
     def draw(self):
@@ -79,6 +84,7 @@ class Game:
     def check_collision_with_food(self):
         if self.snake.body[0] == self.food.position:
             self.food.position = self.food.generate_random_pos(self.snake.body)
+            self.score += 1
             self.snake.add_segment = True
     
     def check_collision_with_edges(self):
@@ -90,6 +96,9 @@ class Game:
     def game_over(self):
         self.snake.reset()
         self.food.position = self.food.generate_random_pos(self.snake.body)
+        print("Score: ",self.score)
+        #restart the game score
+        self.score = 0
         self.state = "STOPPED"
 
     def check_collision_with_tails(self):
@@ -141,8 +150,11 @@ while True:
     # draw bordar
     pygame.draw.rect(screen, GRAY, (OFFSET-10, OFFSET-10,cell_size*number_of_cells+20,cell_size*number_of_cells+20), 10)
     game.draw()
+    title_surface = title_font.render("Snake Game", True, GRAY)
+    score_surface = score_font.render("Score: " + str(game.score), True, GRAY)
+    screen.blit(title_surface, (OFFSET-10, 20))
+    screen.blit(score_surface, (OFFSET -5, OFFSET + cell_size*number_of_cells + 10))
 
     pygame.display.update()
-    
     clock.tick(60)
 
