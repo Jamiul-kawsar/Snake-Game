@@ -2,6 +2,7 @@ import pygame
 import sys
 import time
 import random
+import heapq
 from pygame.math import Vector2
 
 pygame.init()
@@ -17,6 +18,51 @@ number_of_cells = 25
 
 # width of the border
 OFFSET = 75
+
+# heuristic for a* algorithm
+def heuristic(pos, goal):
+    # Manhatten distance heuristic calculations
+    return abs(pos[0] - goal[0]) + abs(pos[1] - goal[1])
+
+# get valid neighbor cells
+def get_neighbors(position, grid):
+    neighbors = []
+    directions = [(0, 1), (1, 0), (0, -1), (0, 1)] #down , right , up, left
+    for dx, dy in directions:
+        x, y = position[0] + dx, position[1] + dy
+        if 0 <= x < number_of_cells and 0 <= y < number_of_cells and grid[y][x] == 0:
+            neighbors.append((x,y))
+    return neighbors
+
+# A* algorithm find the shortest path
+def a_star(start, goal, grid):
+    open_list = []
+    heapq.heappush(open_list, (0, start))
+    came_from = {} #track perant nodes
+    g_score = {start: 0}
+    f_score = {start: heuristic(start, goal)}
+
+    while open_list:
+        # element of open_list tuple _ is priority
+        _, current = heapq.heappop(open_list)
+
+        if current == goal:
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.reverse()
+            return path
+        # calculate the heuristic value of neighbor cells
+        for neighbor in get_neighbors(current, grid):
+            tentative_g_score = g_score[current] + 1
+            if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g_score
+                f_score[neighbor] = tentative_g_score + heuristic(neighbor, grid)
+                heapq.heappush(open_list, (f_score[neighbor], neighbor))
+
+    return None # no path found
 
 class Food:
     def __init__(self, snake_body):
