@@ -180,6 +180,30 @@ class Game:
         if snake.body[0] in snake.body[1:]:
             snake.reset(Vector2(10, 10) if player_type == "HUMAN" else Vector2(15, 15))
 
+        # check win condition
+        if self.score_human >= 20:
+            self.state = "STOPPED"
+            self.display_winner("HUMAN")
+        elif self.score_ai >= 20:
+            self.state = "STOPPED"
+            self.display_winner("AI")
+        
+    # display winner strategy
+    def display_winner(self, winner):
+        screen.fill(BLACK)
+        # Display the winner in large text
+        winner_text = title_font.render(f"{winner} Wins!", True, GRAY)
+        # Display instructions to restart or quit
+        restart_text = score_font.render("Press R to Restart or Q to Quit", True, GRAY)
+
+        # centering the winner and restart text
+        winner_rect = winner_text.get_rect(center= (screen.get_width() // 2, screen.get_height() // 2 - 50))
+        restart_rect = restart_text.get_rect(center= (screen.get_width() // 2, screen.get_height() // 2 + 50))
+        
+        screen.blit(winner_text, winner_rect)
+        screen.blit(restart_text, restart_rect)
+        pygame.display.update()
+
 # screen
 screen = pygame.display.set_mode((2 * OFFSET + cell_size*number_of_cells,  2 * OFFSET + cell_size*number_of_cells))
 pygame.display.set_caption("Snake Game")
@@ -197,7 +221,7 @@ pygame.time.set_timer(SNAKE_UPDATE, 200)
 
 while True:
     for event in pygame.event.get():
-        if event.type == SNAKE_UPDATE:
+        if event.type == SNAKE_UPDATE and game.state == "RUNNING":
             game.update()
 
         if event.type == pygame.QUIT:
@@ -205,30 +229,44 @@ while True:
             sys.exit()
 
         if event.type == pygame.KEYDOWN:
-            if game.state == "STOPPED":
-                game.state = "RUNNING"
-            if event.key == pygame.K_UP and game.snake_human.direction != Vector2(0, 1):
-                game.snake_human.direction = Vector2(0, -1)
+            if game.state == "RUNNING":
+                #control the human snake
+                if event.key == pygame.K_UP and game.snake_human.direction != Vector2(0, 1):
+                    game.snake_human.direction = Vector2(0, -1)
+                
+                if event.key == pygame.K_DOWN and game.snake_human.direction != Vector2(0, -1):
+                    game.snake_human.direction = Vector2(0, 1)
+
+                if event.key == pygame.K_LEFT and game.snake_human.direction != Vector2(1, 0):
+                    game.snake_human.direction = Vector2(-1, 0)
+
+                if event.key == pygame.K_RIGHT and game.snake_human.direction != Vector2(-1, 0):
+                    game.snake_human.direction = Vector2(1, 0)
             
-            if event.key == pygame.K_DOWN and game.snake_human.direction != Vector2(0, -1):
-                game.snake_human.direction = Vector2(0, 1)
+            elif game.state == "STOPPED":
+                # restart and quit
+                if event.key == pygame.K_r:
+                    game = Game()
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    sys.exit()
 
-            if event.key == pygame.K_LEFT and game.snake_human.direction != Vector2(1, 0):
-                game.snake_human.direction = Vector2(-1, 0)
-
-            if event.key == pygame.K_RIGHT and game.snake_human.direction != Vector2(-1, 0):
-                game.snake_human.direction = Vector2(1, 0)
 
     # screen fill with black color 
     screen.fill(BLACK)
     # draw bordar
     pygame.draw.rect(screen, GRAY, (OFFSET-10, OFFSET-10,cell_size*number_of_cells+20,cell_size*number_of_cells+20), 10)
-    game.draw()
-    title_surface = title_font.render("Snake Game", True, GRAY)
-    score_surface = score_font.render(f"Human: {game.score_human}  AI: {game.score_ai}", True, GRAY)
-    screen.blit(title_surface, (OFFSET-10, 20))
-    screen.blit(score_surface, (OFFSET -5, OFFSET + cell_size*number_of_cells + 10))
+    if game.state == "RUNNING":
+        game.draw()
+        title_surface = title_font.render("Snake Game", True, GRAY)
+        score_surface = score_font.render(f"Human: {game.score_human}  AI: {game.score_ai}", True, GRAY)
+        screen.blit(title_surface, (OFFSET-10, 20))
+        screen.blit(score_surface, (OFFSET -5, OFFSET + cell_size*number_of_cells + 10))
 
+    elif game.state == "STOPPED":
+        # Display winner when the game is stopped
+        game.display_winner("HUMAN" if game.score_human >= 20 else "AI")
+        
     pygame.display.update()
     clock.tick(60)
 
