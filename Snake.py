@@ -172,8 +172,8 @@ class Game:
                 self.score_ai += 1
             snake.add_segment = True
 
-          # Check collision with edges
-        if snake.body[0].x == number_of_cells or snake.body[0].x == -1 or snake.body[0].y == number_of_cells or snake.body[0].y == -1:
+        # Check collision with edges
+        if (snake.body[0].x >= number_of_cells or snake.body[0].x < 0 or snake.body[0].y >= number_of_cells or snake.body[0].y < 0):
             snake.reset(Vector2(10, 10) if player_type == "HUMAN" else Vector2(15, 15))
 
         # Check collision with itself
