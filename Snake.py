@@ -110,6 +110,7 @@ class Snake:
     def reset(self, start_pos):
         self.body = [start_pos + Vector2(-i,0) for i in range(3)]
         self.direction = Vector2(1, 0)
+        
     
     #find the shortest path to food using A*
     def find_path_to_food(self, food_pos, other_snake):
@@ -163,22 +164,28 @@ class Game:
         # check collision for Human snake
         self.check_collision(self.snake_human, "HUMAN")
 
-    def check_collision(self, snake , player_type):
-        if snake.body[0] == self.food.position:
+    def check_collision(self, snakes, player_type):
+        if snakes.body[0] == self.food.position:
             self.food.position = self.food.generate_random_pos([self.snake_human, self.snake_ai])
             if player_type == "HUMAN":
                 self.score_human += 1
             else:
                 self.score_ai += 1
-            snake.add_segment = True
+            snakes.add_segment = True
 
         # Check collision with edges
-        if (snake.body[0].x >= number_of_cells or snake.body[0].x < 0 or snake.body[0].y >= number_of_cells or snake.body[0].y < 0):
-            snake.reset(Vector2(10, 10) if player_type == "HUMAN" else Vector2(15, 15))
+        if (snakes.body[0].x >= number_of_cells or snakes.body[0].x < 0 or snakes.body[0].y >= number_of_cells or snakes.body[0].y < 0):
+            self.reset(snakes, player_type)
+            
 
         # Check collision with itself
-        if snake.body[0] in snake.body[1:]:
-            snake.reset(Vector2(10, 10) if player_type == "HUMAN" else Vector2(15, 15))
+        if snakes.body[0] in snakes.body[1:]:
+            self.reset(snakes, player_type)
+        
+         # Check collision with the other snake
+        other_snake = self.snake_ai if player_type == "HUMAN" else self.snake_human
+        if snakes.body[0] in other_snake.body:
+            self.reset(snakes, player_type)
 
         # check win condition
         if self.score_human >= 20:
@@ -203,6 +210,15 @@ class Game:
         screen.blit(winner_text, winner_rect)
         screen.blit(restart_text, restart_rect)
         pygame.display.update()
+    # score reset
+    def reset(self, snake, player):
+        #reset snake
+        snake.reset(Vector2(5, 5) if player == "HUMAN" else Vector2(9, 9))
+        if player == "HUMAN":
+            self.score_human = 0
+        else:
+            self.score_ai = 0
+
 
 # screen
 screen = pygame.display.set_mode((2 * OFFSET + cell_size*number_of_cells,  2 * OFFSET + cell_size*number_of_cells))
