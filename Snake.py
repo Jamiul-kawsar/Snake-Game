@@ -131,7 +131,7 @@ class Game:
     def __init__(self):
         self.snake_human = Snake(Vector2(10,10), GREEN)
         self.snake_ai = Snake(Vector2(5, 5), BLUE)
-        self.food = Food(self.snake_human.body)
+        self.food = Food(self.snake_human.body+ self.snake_ai.body)
         # game score
         self.score_human = 0
         self.score_ai = 0
@@ -165,6 +165,7 @@ class Game:
         self.check_collision(self.snake_human, "HUMAN")
 
     def check_collision(self, snakes, player_type):
+        # Check collision with food
         if snakes.body[0] == self.food.position:
             self.food.position = self.food.generate_random_pos([self.snake_human, self.snake_ai])
             if player_type == "HUMAN":
@@ -218,7 +219,6 @@ class Game:
             self.score_human = 0
         else:
             self.score_ai = 0
-
 
 # screen
 screen = pygame.display.set_mode((2 * OFFSET + cell_size*number_of_cells,  2 * OFFSET + cell_size*number_of_cells))
@@ -285,4 +285,3 @@ while True:
         
     pygame.display.update()
     clock.tick(60)
-
