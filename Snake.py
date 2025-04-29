@@ -1,6 +1,5 @@
 import pygame
 import sys
-import time
 import random
 import heapq
 from pygame.math import Vector2
@@ -28,7 +27,7 @@ def heuristic(pos, goal):
 # get valid neighbor cells
 def get_neighbors(position, grid):
     neighbors = []
-    directions = [(0, 1), (1, 0), (0, -1), (-1, 0)] #down , right , up, left
+    directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, -1), (-1, -1), (1, 1), (-1, 1)] #down , right , up, left, top-right, top-left, bottom-right, bottom-left
     for dx, dy in directions:
         x, y = position[0] + dx, position[1] + dy
         if 0 <= x < number_of_cells and 0 <= y < number_of_cells and grid[y][x] == 0:
@@ -195,6 +194,7 @@ class Game:
         elif self.score_ai >= 20:
             self.state = "STOPPED"
             self.display_winner("AI")
+        self.avoid_human(self.path_ai, self.snake_human.body)
         
     # display winner strategy
     def display_winner(self, winner):
@@ -219,7 +219,14 @@ class Game:
             self.score_human = 0
         else:
             self.score_ai = 0
-
+    # when AI find the path to food it will avoid the human snake
+    def avoid_human(self, path_ai, path_human):
+        for cell in path_human:
+            if cell in path_ai:
+                path_ai.remove(cell)
+        return path_ai
+        
+# game board
 # screen
 screen = pygame.display.set_mode((2 * OFFSET + cell_size*number_of_cells,  2 * OFFSET + cell_size*number_of_cells))
 pygame.display.set_caption("Snake Game")
@@ -258,6 +265,32 @@ while True:
 
                 if event.key == pygame.K_RIGHT and game.snake_human.direction != Vector2(-1, 0):
                     game.snake_human.direction = Vector2(1, 0)
+                
+                if event.key == pygame.K_e and game.snake_human.direction != Vector2(-1, 1):
+                     game.snake_human.direction = Vector2(1, -1)  # Top-right
+
+                if event.key == pygame.K_q and game.snake_human.direction != Vector2(1, -1):
+                     game.snake_human.direction = Vector2(-1, -1)  # Top-left   
+                
+                if event.key == pygame.K_c and game.snake_human.direction != Vector2(-1, -1):
+                     game.snake_human.direction = Vector2(1, 1)  # Bottom-right 
+                
+                if event.key == pygame.K_z and game.snake_human.direction != Vector2(1, 1):
+                     game.snake_human.direction = Vector2(-1, 1)  # Bottom-left
+                
+                if event.key == pygame.K_ESCAPE:
+                    game.state = "STOPPED" if game.state == "RUNNING" else "RUNNING"
+                if event.key == pygame.K_SPACE:
+                    game.snake_human.direction = Vector2(0, 0)
+                if event.key == pygame.K_p:
+                    game.snake_human.direction = Vector2(0, 0)
+                    game.snake_ai.direction = Vector2(0, 0) 
+                    game.path_ai = None
+                if event.key == pygame.K_s:
+                    game.snake_human.direction = Vector2(0, 0)
+                    game.snake_ai.direction = Vector2(0, 0) 
+                    game.path_ai = None
+                
             
             elif game.state == "STOPPED":
                 # restart and quit
